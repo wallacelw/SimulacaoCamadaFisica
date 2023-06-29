@@ -4,6 +4,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+void imprimirSinal(vector<bool> &sinal, int bits, string mensagem);
 void aplicacaoTransmissora();
 void chamadaDeAplicacaoTransmissora(string mensagem, int tipoDeCodificacao);
 void camadaFisicaTransmissora(vector<bool> quadro, int tipoDeCodificacao);
