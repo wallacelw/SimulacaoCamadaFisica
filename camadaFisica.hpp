@@ -12,10 +12,10 @@ vector<bool> camadaFisicaTransmissoraCodificacaoBinaria(vector<bool> quadro);
 vector<bool> camadaFisicaTransmissoraCodificacaoManchester(vector<bool> quadro);
 vector<bool> camadaFisicaTransmissoraCodificacaoBipolar(vector<bool> quadro);
 void meioDeComunicacao(vector<bool> fluxoBrutoDeBits, int tipoDeCodificacao);
-void camadaFisicaReceptora(vector<bool> quadro, int tipoDeDecodificacao);
-vector<bool> camadaFisicaReceptoraDecodificacaoBinaria(vector<bool> quadro);
-vector<bool> camadaFisicaReceptoraDecodificacaoManchester(vector<bool> quadro);
-vector<bool> camadaFisicaReceptoraDecodificacaoBipolar(vector<bool> quadro);
+void camadaFisicaReceptora(vector<bool> onda, int tipoDeDecodificacao);
+vector<bool> camadaFisicaReceptoraDecodificacaoBinaria(vector<bool> onda);
+vector<bool> camadaFisicaReceptoraDecodificacaoManchester(vector<bool> onda);
+vector<bool> camadaFisicaReceptoraDecodificacaoBipolar(vector<bool> onda);
 void chamadaDeAplicacaoReceptora(vector<bool> quadro);
 void aplicacaoReceptora(string mensagem);
 
