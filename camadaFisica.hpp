@@ -5,7 +5,7 @@
 using namespace std;
 
 void imprimirSinal(vector<bool> &sinal, int bits, string mensagem);
-void aplicacaoTransmissora();
+void aplicacaoTransmissora(int argc, char** argv);
 void chamadaDeAplicacaoTransmissora(string mensagem, int tipoDeCodificacao);
 void camadaFisicaTransmissora(vector<bool> quadro, int tipoDeCodificacao);
 vector<bool> camadaFisicaTransmissoraCodificacaoBinaria(vector<bool> quadro);

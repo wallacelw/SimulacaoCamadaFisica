@@ -2,7 +2,7 @@
 #include "camadaFisica.hpp"
 using namespace std;
 
-int32_t main() {
-    aplicacaoTransmissora();
+int32_t main(int argc, char** argv) {
+    aplicacaoTransmissora(argc, argv);
     return 0;
 }

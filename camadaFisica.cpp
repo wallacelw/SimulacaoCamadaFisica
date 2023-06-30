@@ -26,22 +26,25 @@ void imprimirSinal(vector<bool> &sinal, int bits, string mensagem) {
 }
 
 // Interface de Interação com o usuário (Camada de Aplicacao)
-void aplicacaoTransmissora() {
+void aplicacaoTransmissora(int argc, char** argv) {
 
-    // Define qual a codificação utilizada, sendo essa escolhida pelo usuário
-    cout << "Escolha a codificacao que sera utilizada:" << endl;
-    cout << "(1) Codificacao Binaria" << endl;
-    cout << "(2) Codificacao Manchester" << endl;
-    cout << "(3) Codificacao Bipolar" << endl;
-    int tipoDeCodificacao; cin >> tipoDeCodificacao;
-    
-    // Recebe a mensagem a ser enviada
+    int tipoDeCodificacao;
     string mensagem;
 
-    cout << endl << "Digite uma mensagem:" << endl;
-    cin >> mensagem;
-    cout << endl;
-
+    if (argc == 3) {   // Define qual a codificação utilizada, sendo essa escolhida pela interface de linha de comando
+        tipoDeCodificacao = atoi(argv[1]);
+        mensagem = argv[2];
+    }
+    else {      // Define qual a codificação utilizada, sendo essa escolhida pelo usuário
+        cout << "Escolha a codificacao que sera utilizada:" << endl;
+        cout << "(1) Codificacao Binaria" << endl;
+        cout << "(2) Codificacao Manchester" << endl;
+        cout << "(3) Codificacao Bipolar" << endl;
+        cin >> tipoDeCodificacao;
+        cout << endl << "Digite uma mensagem:" << endl;
+        cin >> mensagem;
+        cout << endl;
+    }
     // Chama a funcao para transmitir a mensagem
     chamadaDeAplicacaoTransmissora(mensagem, tipoDeCodificacao);
 }
