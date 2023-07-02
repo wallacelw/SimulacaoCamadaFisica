@@ -3,22 +3,21 @@ using namespace std;
 
 #include "camadaFisica.hpp"
 
-// Debugging
-#define db(a) cerr << " [ " << #a << " = " << a << " ] " << endl;
-#define debug(a...) cerr<<#a<<": ";for(auto b:a)cerr<<b<<" ";cerr<<endl;
-template <typename... A> void dbg(A const&... a) { ((cerr << "{" << a << "} "), ...); cerr << endl; }
-
 // "Interface Gráfica" com o usuário
 void imprimirSinal(vector<bool> &sinal, int bits, string mensagem) {
+    // imprime a mensagem passada como argumento
+    // e imprime o sinal com o devido espaçamento
+    // definido pela variável "bits"
 
     int tamanho = (int) sinal.size();
-
     cout << mensagem << endl;
     
     for(int i=0; i<tamanho/bits; i++) {
+        // imprime os bits do sinal
         for(int j=0; j<bits; j++)
             cout << sinal[bits*i+j];
 
+        // imprime o espaçamento devido
         for(int j=0; j<3-bits; j++)
             cout << " ";
     }
@@ -28,7 +27,7 @@ void imprimirSinal(vector<bool> &sinal, int bits, string mensagem) {
 // Interface de Interação com o usuário (Camada de Aplicacao)
 void aplicacaoTransmissora() {
 
-    // Define qual a codificação utilizada, sendo essa escolhida pelo usuário
+    // Define qual a codificação utilizada, sendo esta escolhida pelo usuário
     cout << "Escolha a codificacao que sera utilizada:" << endl;
     cout << "(1) Codificacao Binaria" << endl;
     cout << "(2) Codificacao Manchester" << endl;
@@ -37,7 +36,6 @@ void aplicacaoTransmissora() {
     
     // Recebe a mensagem a ser enviada
     string mensagem;
-
     cout << endl << "Digite uma mensagem:" << endl;
     cin >> mensagem;
     cout << endl;
@@ -48,11 +46,11 @@ void aplicacaoTransmissora() {
 
 // Funcao para converter a mensagem a ser enviada em sua representação binária
 void chamadaDeAplicacaoTransmissora(string mensagem, int tipoDeCodificacao) {
-
     // converte a mensagem em um vetor de bits
     // parte-se do presuposto que a mensagem contém apenas caracteres ascii
-    // desse modo, cada caractere possui 8 bits
-    // utiliza a representacao de little-endian
+    // desse modo, cada caractere possui exatamente 8 bits
+    // utiliza a representacao little-endian
+
     vector<bool> quadro;
     for(char c : mensagem) {
         for(int i=0; i<8; i++) {
@@ -86,11 +84,11 @@ void camadaFisicaTransmissora(vector<bool> quadro, int tipoDeCodificacao) {
 // Funcao de Codificacao Binaria (NRZI-M)
 vector<bool> camadaFisicaTransmissoraCodificacaoBinaria(vector<bool> quadro) {
     // dois sinais (0 == V-, 1 == V+)
-    int tamanho = quadro.size();
+
+    int tamanho = (int) quadro.size();
     vector<bool> onda(tamanho*2, 0);
 
     for(int i=0; i<tamanho; i++) {
-
         // mantendo o sinal 
         if (i > 0) { // o primeiro bit é sempre 0
             onda[2*i] = onda[2*i-1];
@@ -113,12 +111,15 @@ vector<bool> camadaFisicaTransmissoraCodificacaoBinaria(vector<bool> quadro) {
 // Funcao de Codificacao Manchester (IEEE convention)
 vector<bool> camadaFisicaTransmissoraCodificacaoManchester(vector<bool> quadro) {
     // dois sinais (0 == V-, 1 == V+)
-    int tamanho = quadro.size();
+
+    int tamanho = (int) quadro.size();
     vector<bool> clock(tamanho*2, 0), onda(tamanho*2, 0);
 
+    // inicializa o clock
     for(int i=0; i<tamanho; i++) 
         clock[2*i+1] = 1;
 
+    // realiza o xor do sinal com o clock caso o bit seja 1
     for(int i=0; i<tamanho; i++) {
         onda[2*i] = clock[2*i] ^ quadro[i];
         onda[2*i+1] = clock[2*i+1] ^ quadro[i];
@@ -131,13 +132,17 @@ vector<bool> camadaFisicaTransmissoraCodificacaoManchester(vector<bool> quadro) 
 // Funcao de Codificacao Bipolar (AMI)
 vector<bool> camadaFisicaTransmissoraCodificacaoBipolar(vector<bool> quadro) {
     // tres sinais (0 == Terra, 1 == V+, 2 == V-)
-    int tamanho = quadro.size();
+
+    int tamanho = (int) quadro.size();
+
+    // flag booleano que cria o comportamento alternado do bipolar
     bool polaridade = 1; // 1 == V+, 0 == V-
 
     vector<bool> onda(tamanho*2, 0);
 
     for(int i=0; i<tamanho; i++) {
-        if (quadro[i] == 1) {
+        // sinal com bit 1 (V = V+ ou V-)
+        if (quadro[i]) {
             if (polaridade) {
                 onda[2*i] = 0;
                 onda[2*i+1] = 1;
@@ -148,6 +153,7 @@ vector<bool> camadaFisicaTransmissoraCodificacaoBipolar(vector<bool> quadro) {
             }
             polaridade = !polaridade;
         }
+        // sinal com bit 0 (V = 0)
         else {
             onda[2*i] = 0;
             onda[2*i+1] = 0;
@@ -166,6 +172,8 @@ void meioDeComunicacao(vector<bool> fluxoBrutoDeBits, int tipoDeCodificacao) {
 
     fluxoBrutoDeBitsPontoA = fluxoBrutoDeBits;
 
+    // Simula a propagação do sinal no meio físico
+    // do transmissor A para o Receptor B
     for(bool bit : fluxoBrutoDeBitsPontoA) {
         fluxoBrutoDeBitsPontoB.push_back(bit);
     }
@@ -196,14 +204,17 @@ void camadaFisicaReceptora(vector<bool> onda, int tipoDeDecodificacao) {
 // Funcao de Decodificacao Binaria (NRZI-M)
 vector<bool> camadaFisicaReceptoraDecodificacaoBinaria(vector<bool> onda) {
     // dois sinais (0 == V-, 1 == V+)
-    int tamanho = onda.size();
+
+    int tamanho = (int) onda.size();
     vector<bool> quadro(tamanho/2, 0);
 
     for(int i=0; i<tamanho/2; i++) {
-        if (onda[2*i] ^ onda[2*i+1]) { // há transição
+        // há transição (bit 1)
+        if (onda[2*i] ^ onda[2*i+1]) { 
             quadro[i] = 1;
         }
-        else { // não há transição
+        // não há transição (bit 0)
+        else { 
             quadro[i] = 0;
         }
     }
@@ -215,14 +226,17 @@ vector<bool> camadaFisicaReceptoraDecodificacaoBinaria(vector<bool> onda) {
 // Funcao de Decodificacao Manchester
 vector<bool> camadaFisicaReceptoraDecodificacaoManchester(vector<bool> onda) {
     // dois sinais (0 == V-, 1 == V+)
-    int tamanho = onda.size();
+
+    int tamanho = (int) onda.size();
     vector<bool> quadro(tamanho/2, 0);
 
     for(int i=0; i<tamanho/2; i++) {
-        if (onda[2*i] == 1 and onda[2*i+1] == 0) { // houve inversao pelo xor
+        // houve inversao pelo xor (bit 1)
+        if (onda[2*i] == 1 and onda[2*i+1] == 0) { 
             quadro[i] = 1;
         }
-        else { // nao houve inversao pelo xor
+        // nao houve inversao pelo xor (bit 0)
+        else { 
             quadro[i] = 0;
         }
     }
@@ -234,14 +248,17 @@ vector<bool> camadaFisicaReceptoraDecodificacaoManchester(vector<bool> onda) {
 // Funcao de Decodificacao Bipolar
 vector<bool> camadaFisicaReceptoraDecodificacaoBipolar(vector<bool> onda) {
     // tres sinais (0 == Terra, 1 == V+, 2 == V-)
-    int tamanho = onda.size();
+
+    int tamanho = (int) onda.size();
     vector<bool> quadro(tamanho/2, 0);
 
     for(int i=0; i<tamanho/2; i++) {
-        if (onda[2*i] == 0 and onda[2*i+1] == 0) { // Sinal sem polariade -> Bit 0
+        // Sinal sem polariade -> Bit 0
+        if (onda[2*i] == 0 and onda[2*i+1] == 0) { 
             quadro[i] = 0;
         }
-        else { // Sinal com polariade -> Bit 1
+        // Sinal com polariade -> Bit 1
+        else { 
             quadro[i] = 1;
         }
     }
@@ -254,6 +271,10 @@ vector<bool> camadaFisicaReceptoraDecodificacaoBipolar(vector<bool> onda) {
 void chamadaDeAplicacaoReceptora(vector<bool> quadro) {
     string mensagem;
     int caracteres = ((int) quadro.size()) / 8;
+
+    // Analogamente a conversão de ascii para binário,
+    // analisa-se 8 bits em little endian 
+    // para definir o caractere correspondente
     for(int i=0; i<caracteres; i++) {
         char asci_code = 0;
         for(int j=0; j<8; j++) {
@@ -262,6 +283,8 @@ void chamadaDeAplicacaoReceptora(vector<bool> quadro) {
         }
         mensagem += asci_code;
     }
+
+    // chama a aplicação receptora
     aplicacaoReceptora(mensagem);
 }
 
