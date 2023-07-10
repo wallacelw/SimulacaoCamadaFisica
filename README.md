@@ -4,7 +4,9 @@ Trabalho 2 de TR1
 ## Integrantes
 
 200028880 - Wallace Ben Teng Lin Wu 
+
 190024771 - Andressa de Araújo Pereira
+
 200049682 - Pedro Brazil Suffert
 
 ## Compilação
