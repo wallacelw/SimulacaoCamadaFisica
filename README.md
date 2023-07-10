@@ -12,7 +12,7 @@ Trabalho 2 de TR1
 ## Compilação
 
 ```bash
-g++ camadaFisica.hpp camadaFisica.cpp simulador.cpp -std=c++17 -o simulador.exe
+g++ -std=c++17 -o simulador.exe camadaFisica.hpp camadaEnlace.hpp camadaAplicacao.hpp camadaFisica.cpp camadaEnlace.cpp camadaAplicacao.cpp simulador.cpp  
 ```
 
 ## Uso
