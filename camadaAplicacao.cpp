@@ -22,12 +22,18 @@ namespace CamadaAplicacao {
             cout << "(3) Codificacao Bipolar" << endl;
 
             cin >> tipoCodificacao;
-            CamadaEnlace::tipoCodificacao = tipoCodificacao;
+            CamadaFisica::tipoCodificacao = tipoCodificacao;
+
+            cout << "Escolha o enquadramento que sera utilizado:" << endl;
+            cout << "(1) Contagem de Caracteres" << endl;
+            cout << "(2) Insercao de Bytes" << endl;
+
+            cin >> tipoEnquadramento;
+            CamadaEnlace::tipoEnquadramento = tipoEnquadramento;
 
             // Recebe a mensagem a ser enviada
-            string mensagem;
             cout << endl << "Digite uma mensagem:" << endl;
-            getline(cin, mensagem);
+            string mensagem; cin >> mensagem;
             cout << endl;
 
             // Chama a funcao para transmitir a mensagem

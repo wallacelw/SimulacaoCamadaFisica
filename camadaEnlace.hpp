@@ -6,7 +6,6 @@ using namespace std;
 
 namespace CamadaEnlace {
 
-    extern int tipoCodificacao;
     extern int tipoEnquadramento;
 
     namespace Transmissora {

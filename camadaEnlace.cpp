@@ -7,7 +7,6 @@ using namespace std;
 namespace CamadaEnlace {
 
     int tipoEnquadramento;
-    int tipoCodificacao;
 
     namespace Transmissora {
 
