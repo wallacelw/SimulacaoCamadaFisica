@@ -4,19 +4,38 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void imprimirSinal(vector<bool> &sinal, int bits, string mensagem);
-void aplicacaoTransmissora();
-void chamadaDeAplicacaoTransmissora(string mensagem, int tipoDeCodificacao);
-void camadaFisicaTransmissora(vector<bool> quadro, int tipoDeCodificacao);
-vector<bool> camadaFisicaTransmissoraCodificacaoBinaria(vector<bool> quadro);
-vector<bool> camadaFisicaTransmissoraCodificacaoManchester(vector<bool> quadro);
-vector<bool> camadaFisicaTransmissoraCodificacaoBipolar(vector<bool> quadro);
-void meioDeComunicacao(vector<bool> fluxoBrutoDeBits, int tipoDeCodificacao);
-void camadaFisicaReceptora(vector<bool> onda, int tipoDeDecodificacao);
-vector<bool> camadaFisicaReceptoraDecodificacaoBinaria(vector<bool> onda);
-vector<bool> camadaFisicaReceptoraDecodificacaoManchester(vector<bool> onda);
-vector<bool> camadaFisicaReceptoraDecodificacaoBipolar(vector<bool> onda);
-void chamadaDeAplicacaoReceptora(vector<bool> quadro);
-void aplicacaoReceptora(string mensagem);
+#include <bits/stdc++.h>
+#include "camadaAplicacao.hpp"
+#include "camadaEnlace.hpp"
+#include "camadaFisica.hpp"
+using namespace std;
+
+
+namespace CamadaFisica {
+
+    extern int tipoCodificacao;
+
+    namespace Transmissora {
+
+        void chamada(vector<bool> quadro);
+        vector<bool> codificacaoBinaria(vector<bool> quadro);
+        vector<bool> codificacaoManchester(vector<bool> quadro);
+        vector<bool> codificacaoBipolar(vector<bool> quadro);
+
+    }
+
+    void meioDeComunicacao(vector<bool> fluxoBrutoDeBits);
+
+    namespace Receptora {
+       
+        void chamada(vector<bool> onda);
+        vector<bool> decodificacaoBinaria(vector<bool> onda);
+        vector<bool> decodificacaoManchester(vector<bool> onda);
+        vector<bool> decodificacaoBipolar(vector<bool> onda);
+
+    }
+
+}   
+
 
 #endif
