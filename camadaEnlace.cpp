@@ -4,19 +4,85 @@
 #include "camadaFisica.hpp"
 using namespace std;
 
+#define db(a) cerr << " [ " << #a << " = " << a << " ] " << endl;
+#define debug(a...) cerr<<#a<<": ";for(auto b:a)cerr<<b<<" ";cerr<<endl;
 template <typename... A> void dbg(A const&... a) { ((cerr << "{" << a << "} "), ...); cerr << endl; }
 
 namespace CamadaEnlace {
 
     int tipoEnquadramento;
+    int tipoTratamento;
 
     namespace Transmissora {
 
         void chamada(vector<bool> quadro) {
+            
+            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro Recebido da Camada de Aplicacao");
 
-            vector<bool> quadroEnquadrado = enquadramento(quadro);
+            vector<bool> quadroTratado = tratamentoErro(quadro);
+            CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro Com Tratamento de Erro");
+
+            vector<bool> quadroEnquadrado = enquadramento(quadroTratado);
+            CamadaAplicacao::imprimirSinal(quadroEnquadrado, 1, "Quadro Enquadrado");
 
             CamadaFisica::Transmissora::chamada(quadroEnquadrado);
+        }
+
+        vector<bool> tratamentoErro(vector<bool> quadro) {
+            vector<bool> quadroTratado;
+
+            if (tipoTratamento == 1) {
+                quadroTratado = paridade(quadro);
+            }
+            else if (tipoTratamento == 2) {
+                quadroTratado = crc(quadro);
+            }
+            else if (tipoTratamento == 3) {
+                quadroTratado = hamming(quadro);
+            }
+
+            return quadroTratado;
+        }
+
+        // Bit de Paridade Par ao fim do quadro
+        vector<bool> paridade(vector<bool> quadro) {
+            bool xorsum = 0;
+            for(auto bit : quadro) xorsum ^= bit;
+            quadro.push_back(xorsum);
+            return quadro; 
+        }   
+
+        vector<bool> crc(vector<bool> quadro) {
+            int g = 0x04C11DB7;
+            vector<bool> copy = quadro;
+
+            int tamanho = (int) quadro.size();
+            for(int i=0; i<32; i++) copy.push_back(0);
+
+            // calcula o resto
+            for(int i=0; i<tamanho; i++) {
+                if (!copy[i]) {
+                    continue;
+                }
+
+                copy[i] = 0; // xor with x^32
+                for(int j=0; j<32; j++) {
+                    if (g & (1 << j)) {
+                        copy[i+32-j] = !copy[i+32-j];
+                    }
+                }
+            }
+
+            // readiciona o quadro original
+            for(int i=0; i<tamanho; i++) {
+                copy[i] = quadro[i];
+            }
+
+            return copy;
+        }
+
+        vector<bool> hamming(vector<bool> quadro) {
+            return quadro;
         }
 
         vector<bool> enquadramento(vector<bool> quadro) {
@@ -81,9 +147,86 @@ namespace CamadaEnlace {
     namespace Receptora {
 
         void chamada(vector<bool> quadroEnquadrado) {
-            vector<bool> quadro = desenquadramento(quadroEnquadrado);
+            
+            CamadaAplicacao::imprimirSinal(quadroEnquadrado, 1, "Quadro Recebido do Meio Fisico");
+
+            vector<bool> quadroTratado = desenquadramento(quadroEnquadrado);
+            CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro Desenquadrado");
+
+            vector<bool> quadro = tratamentoErro(quadroTratado);
+            CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro enviado a Camada de Aplicacao");
 
             CamadaAplicacao::Receptora::chamada(quadro);
+        }
+
+        vector<bool> tratamentoErro(vector<bool> quadroTratado) {
+            vector<bool> quadro;
+
+            if (tipoTratamento == 1) {
+                quadro = paridade(quadroTratado);
+            }
+            else if (tipoTratamento == 2) {
+                quadro = crc(quadroTratado);
+            }
+            else if (tipoTratamento == 3) {
+                quadro = hamming(quadroTratado);
+            }
+
+            return quadro;
+        }
+
+        // Bit de Paridade Par ao fim do quadro
+        vector<bool> paridade(vector<bool> quadro) {
+            bool xorsum = 0;
+            for(auto bit : quadro) xorsum ^= bit;
+            if (xorsum) {
+                cout << "ERRO Detectado - Paridade deveria ser PAR" << endl;
+            }
+            else {
+                cout << "Sem ERRO Detectado - Paridade calculada PAR" << endl;
+            }
+            quadro.pop_back();
+            return quadro; 
+        }   
+
+        vector<bool> crc(vector<bool> copy) {
+            int g = 0x04C11DB7;
+
+            vector<bool> quadro = copy;
+
+            for(int i=0; i<32; i++) quadro.pop_back();
+
+            int tamanho = (int) quadro.size();
+
+            // calcula o resto
+            for(int i=0; i<tamanho; i++) {
+                if (!copy[i]) continue;
+
+                copy[i] = 0; // xor with x^32
+                for(int j=0; j<32; j++) {
+                    if (g & (1 << j)) {
+                        copy[i+32-j] = !copy[i+32-j];
+                    }
+                }
+            }
+
+            bool error = 0;
+            for(int i=0; i<32; i++) {
+                if (copy[tamanho+32-i-1]) error = 1;
+            }
+
+            if (error) {
+                cout << "ERRO Detectado - Resto != 0" << endl;
+            }
+            else {
+                cout << "Sem ERRO Detectado - Resto == 0" << endl;
+            }           
+
+            return quadro;
+        }
+
+        vector<bool> hamming(vector<bool> quadro) {
+            return quadro;
         }
 
         vector<bool> desenquadramento(vector<bool> quadroEnquadrado) {

@@ -9,6 +9,7 @@ namespace CamadaAplicacao {
     
     int tipoEnquadramento;
     int tipoCodificacao;
+    int tipoTratamento;
 
     namespace Transmissora {
 
@@ -16,20 +17,28 @@ namespace CamadaAplicacao {
         void aplicacao() {
 
             // Define qual a codificação utilizada, sendo esta escolhida pelo usuário
-            cout << "Escolha a codificacao que sera utilizada:" << endl;
-            cout << "(1) Codificacao Binaria" << endl;
-            cout << "(2) Codificacao Manchester" << endl;
-            cout << "(3) Codificacao Bipolar" << endl;
+            cout << "Escolha a codificacao:" << endl;
+            cout << "(1) Codificacao Binaria (NRZI-M)" << endl;
+            cout << "(2) Codificacao Manchester (IEEE)" << endl;
+            cout << "(3) Codificacao Bipolar (AMI)" << endl;
 
             cin >> tipoCodificacao;
             CamadaFisica::tipoCodificacao = tipoCodificacao;
 
-            cout << "Escolha o enquadramento que sera utilizado:" << endl;
+            cout << "Escolha o enquadramento:" << endl;
             cout << "(1) Contagem de Caracteres" << endl;
-            cout << "(2) Insercao de Bytes" << endl;
+            cout << "(2) Insercao de Bytes (Bit Stuffing)" << endl;
 
             cin >> tipoEnquadramento;
             CamadaEnlace::tipoEnquadramento = tipoEnquadramento;
+
+            cout << "Escolha o metodo de tratamento de erro:" << endl;
+            cout << "(1) Deteccao - Bit de Paridade Par" << endl;
+            cout << "(2) Deteccao - CRC (CRC32 - IEEE)" << endl;
+            cout << "(3) Correcao - Codigo de Hamming" << endl;
+
+            cin >> tipoTratamento;
+            CamadaEnlace::tipoTratamento = tipoTratamento;
 
             // Recebe a mensagem a ser enviada
             cout << endl << "Digite uma mensagem:" << endl;

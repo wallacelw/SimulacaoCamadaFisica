@@ -8,7 +8,8 @@ namespace CamadaAplicacao {
 
     extern int tipoEnquadramento;
     extern int tipoCodificacao;
-
+    extern int tipoTratamento;
+    
     namespace Transmissora {
         void aplicacao();
         void chamada(string mensagem);
