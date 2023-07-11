@@ -4,10 +4,12 @@
 #include "camadaFisica.hpp"
 using namespace std;
 
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
 namespace CamadaFisica {
 
     int tipoCodificacao;
+    long double porcentagemErro;
 
     namespace Transmissora {
 
@@ -120,14 +122,27 @@ namespace CamadaFisica {
         vector<bool> fluxoBrutoDeBitsPontoA, fluxoBrutoDeBitsPontoB;
 
         fluxoBrutoDeBitsPontoA = fluxoBrutoDeBits;
+        CamadaAplicacao::imprimirSinal(fluxoBrutoDeBitsPontoA, 2, "Fluxo de bits do meio de comunicacao (enviado)");
 
         // Simula a propagação do sinal no meio físico
         // do transmissor A para o Receptor B
+        int erros = 0, count = 0;
         for(bool bit : fluxoBrutoDeBitsPontoA) {
-            fluxoBrutoDeBitsPontoB.push_back(bit);
+            unsigned int random = rng() % 100000;
+            count++;
+            
+            if (random+1 <= porcentagemErro*1000) {
+                fluxoBrutoDeBitsPontoB.push_back(!bit);
+                erros++;
+            }
+            else 
+                fluxoBrutoDeBitsPontoB.push_back(bit);
         }
 
-        CamadaAplicacao::imprimirSinal(fluxoBrutoDeBits, 2, "Fluxo de bits do meio de comunicacao");
+        cout << "Houve " << erros << " inversao(oes) devido a transmissao! " << '\n' << endl;
+        cout << "De um Total de: " << count << " bits enviados na transmissao! " << '\n' << endl;
+
+        CamadaAplicacao::imprimirSinal(fluxoBrutoDeBitsPontoB, 2, "Fluxo de bits do meio de comunicacao (recebido)");
 
         // chama a funcao que recebe o trem de bits
         CamadaFisica::Receptora::chamada(fluxoBrutoDeBitsPontoB);

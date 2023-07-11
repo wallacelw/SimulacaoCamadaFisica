@@ -9,7 +9,8 @@ namespace CamadaAplicacao {
     extern int tipoEnquadramento;
     extern int tipoCodificacao;
     extern int tipoTratamento;
-    
+    extern long double porcentagemErro;
+
     namespace Transmissora {
         void aplicacao();
         void chamada(string mensagem);

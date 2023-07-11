@@ -14,6 +14,7 @@ using namespace std;
 namespace CamadaFisica {
 
     extern int tipoCodificacao;
+    extern long double porcentagemErro;
 
     namespace Transmissora {
 

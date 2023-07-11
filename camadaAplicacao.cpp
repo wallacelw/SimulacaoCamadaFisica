@@ -10,7 +10,8 @@ namespace CamadaAplicacao {
     int tipoEnquadramento;
     int tipoCodificacao;
     int tipoTratamento;
-
+    long double porcentagemErro;
+    
     namespace Transmissora {
 
         // Interface de Interação com o usuário (Camada de Aplicacao)
@@ -40,9 +41,16 @@ namespace CamadaAplicacao {
             cin >> tipoTratamento;
             CamadaEnlace::tipoTratamento = tipoTratamento;
 
+            cout << "Escolha a porcentagem de erro do meio fisico [0, 100]:" << endl;
+
+            cin >> porcentagemErro;
+            CamadaFisica::porcentagemErro = porcentagemErro;
+
             // Recebe a mensagem a ser enviada
             cout << endl << "Digite uma mensagem:" << endl;
-            string mensagem; cin >> mensagem;
+            cin >> ws;
+
+            string mensagem; getline(cin, mensagem);
             cout << endl;
 
             // Chama a funcao para transmitir a mensagem

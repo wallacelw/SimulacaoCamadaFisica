@@ -4,10 +4,6 @@
 #include "camadaFisica.hpp"
 using namespace std;
 
-#define db(a) cerr << " [ " << #a << " = " << a << " ] " << endl;
-#define debug(a...) cerr<<#a<<": ";for(auto b:a)cerr<<b<<" ";cerr<<endl;
-template <typename... A> void dbg(A const&... a) { ((cerr << "{" << a << "} "), ...); cerr << endl; }
-
 namespace CamadaEnlace {
 
     int tipoEnquadramento;
