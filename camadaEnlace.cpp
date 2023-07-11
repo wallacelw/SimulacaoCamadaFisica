@@ -115,42 +115,37 @@ namespace CamadaEnlace {
         vector<bool> insercaoDeBytes(vector<bool> quadroEnquadrado) {
 
             vector<bool> quadroDesenquadrado;
-            queue<bool> fila;
             int counter = 0;
             bool foundFlag = 0;
 
             for(auto bit : quadroEnquadrado) {
                 if (foundFlag) {
                     foundFlag = 0;
-                    fila = queue<bool>(); // reset
+                    for(int i=0; i<7; i++) {
+                        quadroDesenquadrado.pop_back();
+                    }
                     continue;
                 }
 
                 if (bit) {
-                    if (counter == 5) {
+                    if (counter == 5) { // 6 consecutive '1'
+                        counter = 0;
                         foundFlag = 1;
-                        continue;
                     }
                     counter++;
                 }
                 else {
-                    if (counter == 5) {
-                        // remove aditional 0
+                    if (counter == 5) { // skip 0
+                        counter = 0;
                         continue;
                     }
                     counter = 0;
                 }
 
-                fila.push(bit);
-                if (fila.size() > 8) {
-                    quadroDesenquadrado.push_back( fila.front() );
-                    dbg(fila.front());
-                    fila.pop();
-                }
+                quadroDesenquadrado.push_back(bit);
             }
 
             return quadroDesenquadrado;
-
         }
     }
 
