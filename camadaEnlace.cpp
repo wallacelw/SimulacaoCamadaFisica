@@ -82,7 +82,44 @@ namespace CamadaEnlace {
         }
 
         vector<bool> hamming(vector<bool> quadro) {
-            return quadro;
+            int tamanho = (int) quadro.size();
+            int parityBits = 0;
+            int pow = 1; // pow = 2 ^ parity bits
+            while(pow < parityBits + tamanho + 1) {
+                parityBits += 1;
+                pow *= 2;
+            }
+            
+            pow = 1;
+            int j = 1;
+            vector<bool> codigo;
+            for(int i=0; i<tamanho; i++) {
+                if (j == pow) {
+                    codigo.push_back(0);
+                    j += 1;
+                    i -= 1;
+                    pow *= 2;
+                }
+                else {
+                    codigo.push_back(quadro[i]);
+                    j += 1;
+                }
+            }
+
+            int novoTamanho = (int) codigo.size();
+            vector<bool> xorsum(parityBits, 0);
+            for(int i=0; i<novoTamanho; i++) {
+                for(int j=0; j<parityBits; j++) {
+                    if ((i+1) & (1 << j)) {
+                        xorsum[j] = xorsum[j] ^ codigo[i];
+                    }
+                }
+            }
+
+            for(int j=0; j<parityBits; j++) 
+                codigo[(1 << j) - 1] = xorsum[j];
+            
+            return codigo;
         }
 
         vector<bool> enquadramento(vector<bool> quadro) {
@@ -154,7 +191,7 @@ namespace CamadaEnlace {
             CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro Desenquadrado");
 
             vector<bool> quadro = tratamentoErro(quadroTratado);
-            CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro enviado a Camada de Aplicacao");
+            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro enviado a Camada de Aplicacao");
 
             CamadaAplicacao::Receptora::chamada(quadro);
         }
@@ -226,7 +263,48 @@ namespace CamadaEnlace {
         }
 
         vector<bool> hamming(vector<bool> quadro) {
-            return quadro;
+            int tamanho = (int) quadro.size();
+
+            int parityBits = 0;
+            int pow = 1; // pow = 2 ^ parity bits
+            while(pow < tamanho+1) {
+                parityBits += 1;
+                pow *= 2;
+            }
+
+            vector<bool> xorsum(parityBits, 0);
+            for(int i=0; i<tamanho; i++) {
+                for(int j=0; j<parityBits; j++) {
+                    if ((i+1) & (1 << j)) {
+                        xorsum[j] = xorsum[j] ^ quadro[i];
+                    }
+                }
+            }
+            
+            int error = 0;
+            for(int j=0; j<parityBits; j++) {
+                if (xorsum[j]) error += (1 << j);
+            }
+
+            if (error) {
+                cout << "Erro no bit {" << error << "} !" << endl;
+                quadro[error-1] = !quadro[error-1];
+            }
+            else {
+                cout << "Sem erro!" << endl;
+            }
+            
+            vector<bool> codigo;
+            pow = 1;
+            for(int i=0; i<tamanho; i++) {
+                if ((i+1) == pow) {
+                    pow *= 2;
+                    continue;
+                }
+                codigo.push_back(quadro[i]);
+            }
+            
+            return codigo;
         }
 
         vector<bool> desenquadramento(vector<bool> quadroEnquadrado) {

@@ -35,7 +35,7 @@ namespace CamadaAplicacao {
             cout << "Escolha o metodo de tratamento de erro:" << endl;
             cout << "(1) Deteccao - Bit de Paridade Par" << endl;
             cout << "(2) Deteccao - CRC (CRC32 - IEEE)" << endl;
-            cout << "(3) Correcao - Codigo de Hamming" << endl;
+            cout << "(3) Correcao - Codigo de Hamming (Par)" << endl;
 
             cin >> tipoTratamento;
             CamadaEnlace::tipoTratamento = tipoTratamento;
