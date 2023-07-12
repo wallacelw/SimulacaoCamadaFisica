@@ -45,7 +45,7 @@ namespace CamadaAplicacao {
 
             // Define a porcentagem de erro do meio Físico
             cout << "Escolha a porcentagem de erro do meio fisico [0, 100]:" << endl;
-            cout << "(Aceita-se uma precisao de ate 3 casas decimais)" << endl;
+            cout << "(Use ponto! Aceita-se uma precisao de ate 3 casas decimais)" << endl;
 
             cin >> porcentagemErro;
             CamadaFisica::porcentagemErro = porcentagemErro;
@@ -94,7 +94,7 @@ namespace CamadaAplicacao {
                 char asci_code = 0;
                 for(int j=0; j<8; j++) {
                     if (quadro[i*8 + j])
-                        asci_code += (1 << j);
+                        asci_code += (char) (1 << j);
                 }
                 mensagem += asci_code;
             }

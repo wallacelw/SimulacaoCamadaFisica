@@ -4,6 +4,7 @@
 #include "camadaFisica.hpp"
 using namespace std;
 
+// Gerador de RNG mais confiável que o rand(), o qual utiliza o tempo do sistema
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
 namespace CamadaFisica {
@@ -13,7 +14,7 @@ namespace CamadaFisica {
 
     namespace Transmissora {
 
-        // Funcao para codificar o quadro
+        // Funcao para definir a codificação do quadro
         void chamada(vector<bool> quadro) {
             vector<bool> fluxoBrutoDeBits;
 
@@ -27,7 +28,7 @@ namespace CamadaFisica {
                 fluxoBrutoDeBits = codificacaoBipolar(quadro);
             }
 
-            // transmite a mensagem codificada
+            // transmite a mensagem codificada pelo meio
             CamadaFisica::meioDeComunicacao(fluxoBrutoDeBits);
         }
 
@@ -53,7 +54,7 @@ namespace CamadaFisica {
                 }
             }
 
-            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro a ser codificado com a codificacao Binaria (NRZI-M)");
+            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro a ser codificado com a codificacao Binaria (NRZI-M):");
 
             return onda;
         }
@@ -75,7 +76,7 @@ namespace CamadaFisica {
                 onda[2*i+1] = clock[2*i+1] ^ quadro[i];
             }
 
-            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro a ser codificado com a codificacao Manchester (IEEE)");
+            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro a ser codificado com a codificacao Manchester (IEEE):");
             return onda;
         }
 
@@ -110,7 +111,7 @@ namespace CamadaFisica {
                 }
             }
 
-            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro a ser codificado com a codificacao Bipolar (AMI)");
+            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro a ser codificado com a codificacao Bipolar (AMI):");
             return onda;
         }
 
@@ -128,15 +129,19 @@ namespace CamadaFisica {
         // do transmissor A para o Receptor B
         int erros = 0, count = 0;
         for(bool bit : fluxoBrutoDeBitsPontoA) {
+
+            // Gera um numero aleatório [0, 100000)
             unsigned int random = rng() % 100000;
-            count++;
             
+            // inverte o bit com p=porcentagemErro
             if (random+1 <= porcentagemErro*1000) {
                 fluxoBrutoDeBitsPontoB.push_back(!bit);
-                erros++;
+                erros++; // incrementa a quantidade de inversões
             }
-            else 
-                fluxoBrutoDeBitsPontoB.push_back(bit);
+            // mantém o bit
+            else fluxoBrutoDeBitsPontoB.push_back(bit);
+
+            count++; // incrementa o total de bits
         }
 
         cout << "Houve " << erros << " inversao(oes) devido a transmissao! " << '\n' << endl;

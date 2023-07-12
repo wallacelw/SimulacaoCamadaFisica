@@ -97,18 +97,18 @@ namespace CamadaEnlace {
             
             // Adiciona os bits de paridade nas devidas posições
             pow = 1;
-            int j = 1;
+            int k = 1;
             vector<bool> codigo;
             for(int i=0; i<tamanho; i++) {
-                if (j == pow) {
+                if (k == pow) {
                     codigo.push_back(0);
-                    j += 1;
+                    k += 1;
                     i -= 1;
                     pow *= 2;
                 }
                 else {
                     codigo.push_back(quadro[i]);
-                    j += 1;
+                    k += 1;
                 }
             }
 
@@ -200,19 +200,24 @@ namespace CamadaEnlace {
 
     namespace Receptora {
 
+        // Representa o recebimento do quadro pela Camada de Enlace Receptora
         void chamada(vector<bool> quadroEnquadrado) {
             
-            CamadaAplicacao::imprimirSinal(quadroEnquadrado, 1, "Quadro Recebido do Meio Fisico");
+            CamadaAplicacao::imprimirSinal(quadroEnquadrado, 1, "Quadro Recebido do Meio Fisico:");
 
+            // Desenquadra o quadro
             vector<bool> quadroTratado = desenquadramento(quadroEnquadrado);
-            CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro Desenquadrado");
+            CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro Desenquadrado:");
 
+            // Trata o erro, removendo os bits adicionais
             vector<bool> quadro = tratamentoErro(quadroTratado);
-            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro enviado a Camada de Aplicacao");
-
+            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro depois do Tratamento de Erros:");
+            
+            // Passa o quadro para a Camada de Aplicacao
             CamadaAplicacao::Receptora::chamada(quadro);
         }
 
+        // Função que define como deve interpretar o tratamento dos erros
         vector<bool> tratamentoErro(vector<bool> quadroTratado) {
             vector<bool> quadro;
 
@@ -229,34 +234,43 @@ namespace CamadaEnlace {
             return quadro;
         }
 
-        // Bit de Paridade Par ao fim do quadro
+        // Averigua o Bit de Paridade Par ao fim do quadro e o remove
         vector<bool> paridade(vector<bool> quadro) {
+            // Calcula a paridade do sinal
             bool xorsum = 0;
             for(auto bit : quadro) xorsum ^= bit;
+
+            // Imprime a mensagem de erro
             if (xorsum) {
-                cout << "ERRO Detectado - Paridade deveria ser PAR" << endl;
+                cout << "ERRO - Paridade deveria ser PAR \n" << endl;
             }
             else {
-                cout << "Sem ERRO Detectado - Paridade calculada PAR" << endl;
+                cout << "SEM ERRO - Paridade calculada é PAR \n" << endl;
             }
+            
+            // Retira o bit de paridade
             quadro.pop_back();
+
             return quadro; 
         }   
 
+        // Calcula o resto da divisão polinomial e verifica se é 0
+        // Remove os 32 bits adicionais no fim do quadro
         vector<bool> crc(vector<bool> copy) {
+            // polinomio gerador do CRC32-IEEE
             int g = 0x04C11DB7;
 
+            // Gera o quadro original, sem os 32 bits adicionais
             vector<bool> quadro = copy;
-
             for(int i=0; i<32; i++) quadro.pop_back();
 
             int tamanho = (int) quadro.size();
 
-            // calcula o resto
+            // Calcula o resto
             for(int i=0; i<tamanho; i++) {
                 if (!copy[i]) continue;
 
-                copy[i] = 0; // xor with x^32
+                copy[i] = 0;
                 for(int j=0; j<32; j++) {
                     if (g & (1 << j)) {
                         copy[i+32-j] = !copy[i+32-j];
@@ -264,24 +278,29 @@ namespace CamadaEnlace {
                 }
             }
 
+            // Verifica se houve erro 
             bool error = 0;
             for(int i=0; i<32; i++) {
                 if (copy[tamanho+32-i-1]) error = 1;
             }
 
+            // Imprime a mensagem de Erro
             if (error) {
-                cout << "ERRO Detectado - Resto != 0" << endl;
+                cout << "ERRO - Resto != 0 \n" << endl;
             }
             else {
-                cout << "Sem ERRO Detectado - Resto == 0" << endl;
+                cout << "SEM ERRO - Resto == 0 \n" << endl;
             }           
 
             return quadro;
         }
 
+        // Recalcula os bits de paridade e verifica se condiz
+        // Também remove os bits de paridade
         vector<bool> hamming(vector<bool> quadro) {
             int tamanho = (int) quadro.size();
 
+            // Calcula a quantidade de bits de paridade
             int parityBits = 0;
             int pow = 1; // pow = 2 ^ parity bits
             while(pow < tamanho+1) {
@@ -289,6 +308,7 @@ namespace CamadaEnlace {
                 pow *= 2;
             }
 
+            // Calcula todos os valores de paridade
             vector<bool> xorsum(parityBits, 0);
             for(int i=0; i<tamanho; i++) {
                 for(int j=0; j<parityBits; j++) {
@@ -298,19 +318,23 @@ namespace CamadaEnlace {
                 }
             }
             
+            // Verifica se há erros 
             int error = 0;
             for(int j=0; j<parityBits; j++) {
                 if (xorsum[j]) error += (1 << j);
             }
 
+            // Assumindo que pode haver erro em um único bit,
+            // Imprime o bit que teve inversão e o corrige
             if (error) {
-                cout << "Erro no bit {" << error << "} !" << endl;
+                cout << "ERRO - inversao no bit {" << error << "} \n" << endl;
                 quadro[error-1] = !quadro[error-1];
             }
             else {
-                cout << "Sem erro!" << endl;
+                cout << "SEM ERRO - todos os bits de paridade estao condizentes \n" << endl;
             }
             
+            // Remove os bits de paridade
             vector<bool> codigo;
             pow = 1;
             for(int i=0; i<tamanho; i++) {
@@ -324,6 +348,7 @@ namespace CamadaEnlace {
             return codigo;
         }
 
+        // Função que escolhe o método de desenquadramento
         vector<bool> desenquadramento(vector<bool> quadroEnquadrado) {
 
             vector<bool> quadroDesenquadrado;
@@ -338,9 +363,11 @@ namespace CamadaEnlace {
             return quadroDesenquadrado;
         }
 
+        // Remove o cabeçalho de 4 bytes
         vector<bool> contagemDeCaracteres(vector<bool> quadroEnquadrado) {
             vector<bool> quadroDesenquadrado;
 
+            // Copia os bits do quadro a partir do 33º bit
             int tamanho = (int) quadroEnquadrado.size();
             for(int i=32; i<tamanho; i++) {
                 quadroDesenquadrado.push_back(quadroEnquadrado[i]);
@@ -349,7 +376,8 @@ namespace CamadaEnlace {
             return quadroDesenquadrado;
 
         }
-
+        
+        // Remove as flag e os bits inseridos pelo bit stuffing
         vector<bool> insercaoDeBytes(vector<bool> quadroEnquadrado) {
 
             vector<bool> quadroDesenquadrado;
@@ -357,29 +385,36 @@ namespace CamadaEnlace {
             bool foundFlag = 0;
 
             for(auto bit : quadroEnquadrado) {
+
+                // Detectou uma flag, remove os 7 primeiros bits
+                // E pula o 8º
                 if (foundFlag) {
                     foundFlag = 0;
-                    for(int i=0; i<7; i++) {
-                        quadroDesenquadrado.pop_back();
-                    }
+                    for(int i=0; i<7; i++)
+                        quadroDesenquadrado.pop_back(); 
                     continue;
                 }
 
+                // Bit 1
                 if (bit) {
-                    if (counter == 5) { // 6 consecutive '1'
+                    // 6º '1' consecutivo
+                    if (counter == 5) {
                         counter = 0;
                         foundFlag = 1;
                     }
-                    counter++;
-                }
-                else {
-                    if (counter == 5) { // skip 0
-                        counter = 0;
-                        continue;
-                    }
-                    counter = 0;
+                    else counter++;
                 }
 
+                // Bit 0
+                else {
+                    counter = 0;
+                    // Achou um bit '0' adicional, remove-o pulando ele
+                    if (counter == 5) { 
+                        continue;
+                    }
+                }
+
+                // Acrescenta o bit
                 quadroDesenquadrado.push_back(bit);
             }
 
