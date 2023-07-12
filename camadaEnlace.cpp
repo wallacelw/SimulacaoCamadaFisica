@@ -11,19 +11,24 @@ namespace CamadaEnlace {
 
     namespace Transmissora {
 
+        // Representa a chamada da Camada de Enlace
         void chamada(vector<bool> quadro) {
-            
-            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro Recebido da Camada de Aplicacao");
+        
+            CamadaAplicacao::imprimirSinal(quadro, 1, "Quadro Recebido da Camada de Aplicacao na Camada de Enlace:");
 
+            // Acrescenta ao quadro o tratamento de erro escolhido
             vector<bool> quadroTratado = tratamentoErro(quadro);
-            CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro Com Tratamento de Erro");
+            CamadaAplicacao::imprimirSinal(quadroTratado, 1, "Quadro Com Tratamento de Erro:");
 
+            // Enquadra o quadro
             vector<bool> quadroEnquadrado = enquadramento(quadroTratado);
-            CamadaAplicacao::imprimirSinal(quadroEnquadrado, 1, "Quadro Enquadrado");
+            CamadaAplicacao::imprimirSinal(quadroEnquadrado, 1, "Quadro Enquadrado:");
 
+            // Chama a Camada Física para transmissao
             CamadaFisica::Transmissora::chamada(quadroEnquadrado);
         }
 
+        // Funcao que escolhe o tratamento de erro devido
         vector<bool> tratamentoErro(vector<bool> quadro) {
             vector<bool> quadroTratado;
 
@@ -40,7 +45,7 @@ namespace CamadaEnlace {
             return quadroTratado;
         }
 
-        // Bit de Paridade Par ao fim do quadro
+        // Acrescenta um Bit de Paridade Par ao fim do quadro
         vector<bool> paridade(vector<bool> quadro) {
             bool xorsum = 0;
             for(auto bit : quadro) xorsum ^= bit;
@@ -48,8 +53,11 @@ namespace CamadaEnlace {
             return quadro; 
         }   
 
+        // Acrescenta 32 bits ao fim do quadro que representa o resto da divisão
         vector<bool> crc(vector<bool> quadro) {
+            // polinomio gerador g(x) definido pelo CRC32-IEEE
             int g = 0x04C11DB7;
+
             vector<bool> copy = quadro;
 
             int tamanho = (int) quadro.size();
@@ -57,19 +65,17 @@ namespace CamadaEnlace {
 
             // calcula o resto
             for(int i=0; i<tamanho; i++) {
-                if (!copy[i]) {
-                    continue;
-                }
+                if (!copy[i]) continue;
 
-                copy[i] = 0; // xor with x^32
-                for(int j=0; j<32; j++) {
+                copy[i] = 0; // xor com o termo x^32
+                for(int j=0; j<32; j++) { // xor com os demais termos
                     if (g & (1 << j)) {
                         copy[i+32-j] = !copy[i+32-j];
                     }
                 }
             }
 
-            // readiciona o quadro original
+            // readiciona o quadro original, depois de calcular o resto
             for(int i=0; i<tamanho; i++) {
                 copy[i] = quadro[i];
             }
@@ -77,8 +83,11 @@ namespace CamadaEnlace {
             return copy;
         }
 
+        // Acrescenta bits de paridade nas posições que são potencias de 2
         vector<bool> hamming(vector<bool> quadro) {
             int tamanho = (int) quadro.size();
+
+            // Calcula quantos bits de paridade são necessários
             int parityBits = 0;
             int pow = 1; // pow = 2 ^ parity bits
             while(pow < parityBits + tamanho + 1) {
@@ -86,6 +95,7 @@ namespace CamadaEnlace {
                 pow *= 2;
             }
             
+            // Adiciona os bits de paridade nas devidas posições
             pow = 1;
             int j = 1;
             vector<bool> codigo;
@@ -102,6 +112,7 @@ namespace CamadaEnlace {
                 }
             }
 
+            // Calcula o valor dos bits de paridade
             int novoTamanho = (int) codigo.size();
             vector<bool> xorsum(parityBits, 0);
             for(int i=0; i<novoTamanho; i++) {
@@ -110,14 +121,16 @@ namespace CamadaEnlace {
                         xorsum[j] = xorsum[j] ^ codigo[i];
                     }
                 }
-            }
+            }   
 
+            // Ajusta os valores dos bits de paridade com os valores calculados
             for(int j=0; j<parityBits; j++) 
                 codigo[(1 << j) - 1] = xorsum[j];
             
             return codigo;
         }
 
+        // Função que escolhe qual o método de enquadramento
         vector<bool> enquadramento(vector<bool> quadro) {
 
             vector<bool> quadroEnquadrado;
@@ -139,20 +152,27 @@ namespace CamadaEnlace {
 
             int tamanho = (int) quadro.size() / 8;
 
-            // add header (4 bytes)
+            // Adiciona Cabeçalho (4 bytes)
             for(int j=0; j<32; j++) {
                 if (tamanho & (1 << j)) quadroEnquadrado.push_back(1);
                 else quadroEnquadrado.push_back(0);
             }
 
+            // Copia o quadro original
             for(auto bit : quadro) quadroEnquadrado.push_back(bit);
 
             return quadroEnquadrado;
         }
-        // flag = 0x7E = 0111 1110; bit stuffing
+
+        // Utiliza a técnica de inserção de um byte de flag no começo e no fim do quadro 
+        // Também utiliza a ténica de bit stuffing (adiciona um '0' quando tem cinco '1' consecutivos nos dados)
+        // O valor do flag utilizado é 0x7E = 0111 1110; 
         vector<bool> insercaoDeBytes(vector<bool> quadro) {
+            // Insere o flago no começo
             vector<bool> quadroEnquadrado = {0, 1, 1, 1, 1, 1, 1, 0};
 
+            // Copia os dados originais do quadro, adicionando um '0'
+            // sempre que encontrar cinco '1' consecutivos
             int counter = 0;
             for(auto bit : quadro) {
                 if (counter == 5) {
@@ -170,6 +190,7 @@ namespace CamadaEnlace {
                 quadroEnquadrado.push_back(bit);
             }
 
+            // Insere o flag no fim
             vector<bool> flag = {0, 1, 1, 1, 1, 1, 1, 0};
             for(auto bit : flag) quadroEnquadrado.push_back(bit);
 
