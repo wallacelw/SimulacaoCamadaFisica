@@ -26,6 +26,7 @@ namespace CamadaAplicacao {
             cin >> tipoCodificacao;
             CamadaFisica::tipoCodificacao = tipoCodificacao;
 
+             // Define qual o enquadramento utilizado, sendo este escolhido pelo usuário
             cout << "Escolha o enquadramento:" << endl;
             cout << "(1) Contagem de Caracteres" << endl;
             cout << "(2) Insercao de Bytes (Bit Stuffing)" << endl;
@@ -33,6 +34,7 @@ namespace CamadaAplicacao {
             cin >> tipoEnquadramento;
             CamadaEnlace::tipoEnquadramento = tipoEnquadramento;
 
+            // Define qual o tratamento de erro utilizado
             cout << "Escolha o metodo de tratamento de erro:" << endl;
             cout << "(1) Deteccao - Bit de Paridade Par" << endl;
             cout << "(2) Deteccao - CRC (CRC32 - IEEE)" << endl;
@@ -41,15 +43,16 @@ namespace CamadaAplicacao {
             cin >> tipoTratamento;
             CamadaEnlace::tipoTratamento = tipoTratamento;
 
+            // Define a porcentagem de erro do meio Físico
             cout << "Escolha a porcentagem de erro do meio fisico [0, 100]:" << endl;
+            cout << "(Aceita-se uma precisao de ate 3 casas decimais)" << endl;
 
             cin >> porcentagemErro;
             CamadaFisica::porcentagemErro = porcentagemErro;
 
             // Recebe a mensagem a ser enviada
-            cout << endl << "Digite uma mensagem:" << endl;
+            cout << endl << "Digite uma mensagem: (pode conter espaços)" << endl;
             cin >> ws;
-
             string mensagem; getline(cin, mensagem);
             cout << endl;
 
@@ -63,7 +66,6 @@ namespace CamadaAplicacao {
             // parte-se do presuposto que a mensagem contém apenas caracteres ascii
             // desse modo, cada caractere possui exatamente 8 bits
             // utiliza a representacao little-endian
-
             vector<bool> quadro;
             for(char c : mensagem) {
                 for(int i=0; i<8; i++) {
@@ -103,7 +105,7 @@ namespace CamadaAplicacao {
 
         // Interface que mostra a mensagem recebida (Camada de Aplicacao)
         void aplicacao(string mensagem) {
-            cout << "A mensagem decodificada e recebida:" << endl;
+            cout << "A mensagem decodificada, desenquadrada, tratada e recebida:" << endl;
             cout << mensagem << endl;
         }
     }
