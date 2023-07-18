@@ -203,7 +203,7 @@ namespace CamadaEnlace {
         // Representa o recebimento do quadro pela Camada de Enlace Receptora
         void chamada(vector<bool> quadroEnquadrado) {
             
-            CamadaAplicacao::imprimirSinal(quadroEnquadrado, 1, "Quadro Recebido do Meio Fisico:");
+            CamadaAplicacao::imprimirSinal(quadroEnquadrado, 1, "Quadro com Tratamento de Erros Recebido do Meio Fisico:");
 
             // Desenquadra o quadro
             vector<bool> quadroTratado = desenquadramento(quadroEnquadrado);
